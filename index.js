@@ -63,7 +63,9 @@ function promiseToSaveStream(localStream, bucketName, fileName){
 	    resolve();
 	});
 	localStream.on('error', function(e){
-	    remote.end();
+	    // remote.end();
+	    console.log("error while writing "+bucketName+"://"+fileName);
+	    console.log("error caught in promiseToSaveStream:"+e);
 	    reject(e);
 	});
 	localStream.pipe(remote);
@@ -75,6 +77,7 @@ module.exports = function savecloud(sim){
     const bucket = sim.config.gcloud.bucket;
     const dir = (sim.config.gcloud.dir || '')+'/';
     function promiseToSaveLog(logname){
+	console.log("attempting to save ..."+logname);
 	return promiseToSaveStream(new LogStream(sim.logs[logname]),
 				   bucket,
 				   dir+logname+'.csv');
