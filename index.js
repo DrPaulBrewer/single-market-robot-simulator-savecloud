@@ -16,15 +16,21 @@ class LogStream extends Readable {
 	super(opt);
 	this._log = simlog;
 	this._max = simlog.data.length;
-	this._index = -1;
+	this._index = (simlog.header)? -1 : 0;
     }
 
     _read() {
 	let str, i, hungry;
 	do {
 	    i = this._index++;
+	    console.log("i: "+i);
 	    str = (i<0)? (this._log.header): ( (i>=this._max)? null: (this._log.data[i].join(",")+"\n") );
-	    hungry = this.push(str, 'utf8');
+	    console.log("str: "+str);
+	    if (str===null)
+		hungry = this.push(null);
+	    else
+		hungry = this.push(str, 'utf8');
+	    console.log("hungry:"+hungry);
 	} while ((i<this._max) && hungry);
     }
 }
