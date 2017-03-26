@@ -11,19 +11,25 @@ const Readable = require('stream').Readable;
 
 /* custom Readable Stream closely follows example at https://nodejs.org/api/stream.html#stream_an_example_counting_stream */
 
+function joinWithCommas(row){
+    return row.join(",")+"\n";
+}
+
 class LogStream extends Readable {
     constructor(simlog, opt) {
 	super(opt);
 	this._log = simlog;
 	this._max = simlog.data.length;
 	this._index = (simlog.header)? -1 : 0;
+	if (Array.isArray(simlog.header))
+	    this._header = joinWithCommas(simlog.header);
     }
 
     _read() {
 	let str, i, hungry;
 	do {
 	    i = this._index++;
-	    str = (i<0)? (this._log.header): ( (i>=this._max)? null: (this._log.data[i].join(",")+"\n") );
+	    str = (i<0)? (this._header): ( (i>=this._max)? null: (joinWithCommas(this._log.data[i])) );
 	    if (str===null)
 		hungry = this.push(null);
 	    else if ((typeof str==='string') && (str.length>0))
