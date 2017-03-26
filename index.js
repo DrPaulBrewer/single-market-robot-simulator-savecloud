@@ -5,7 +5,7 @@
 
 "use strict";
 
-const storage = require('storage')();  // without an API key, this only works in google cloud
+const storage = require('@google-cloud/storage')();  // without an API key, this only works in google cloud
 
 const Readable = require('stream').Readable;
 
