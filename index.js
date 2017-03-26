@@ -20,11 +20,12 @@ class LogStream extends Readable {
     }
 
     _read() {
-	let str, i;
+	let str, i, hungry;
 	do {
 	    i = this._index++;
 	    str = (i<0)? (this._log.header): ( (i>=this._max)? null: (this._log.data[i].join(",")+"\n") );
-	} while ((i<=this._max) && (this.push(str, 'utf8')));
+	    hungry = this.push(str, 'utf8');
+	} while ((i<this._max) && hungry);
     }
 }
 
