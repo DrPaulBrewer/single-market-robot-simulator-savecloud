@@ -33,7 +33,7 @@ class LogStream extends Readable {
 	    if (str===null)
 		hungry = this.push(null);
 	    else if ((typeof str==='string') && (str.length>0))
-		hungry = this.push(str, 'utf8')
+		hungry = this.push(str, 'utf8');
 	    else
 		throw new Error("expected string, got: "+typeof(str)+" i is "+i+" len is "+this._max);
 	} while ((i<this._max) && hungry);
