@@ -23,14 +23,11 @@ class LogStream extends Readable {
 	let str, i, hungry;
 	do {
 	    i = this._index++;
-	    console.log("i: "+i);
 	    str = (i<0)? (this._log.header): ( (i>=this._max)? null: (this._log.data[i].join(",")+"\n") );
-	    console.log("str: "+str);
 	    if (str===null)
 		hungry = this.push(null);
 	    else
 		hungry = this.push(str, 'utf8');
-	    console.log("hungry:"+hungry);
 	} while ((i<this._max) && hungry);
     }
 }
@@ -83,7 +80,6 @@ module.exports = function savecloud(sim){
     const bucket = sim.config.gcloud.bucket;
     const dir = (sim.config.gcloud.dir || '')+'/';
     function promiseToSaveLog(logname){
-	console.log("attempting to save ..."+logname);
 	return promiseToSaveStream(new LogStream(sim.logs[logname]),
 				   bucket,
 				   dir+logname+'.csv');
