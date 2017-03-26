@@ -70,7 +70,7 @@ function promiseToSaveStream(localStream, bucketName, fileName){
 }
 
 module.exports = function savecloud(sim){
-    const logNames = Object.keys(sim.log);
+    const logNames = Object.keys(sim.logs);
     const bucket = sim.config.gcloud.bucket;
     const dir = (sim.config.gcloud.dir || '')+'/';
     function promiseToSaveLog(logname){
