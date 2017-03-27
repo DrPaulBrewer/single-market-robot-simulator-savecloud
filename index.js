@@ -10,6 +10,7 @@ const storage = require('@google-cloud/storage')();  // without an API key, this
 const Readable = require('readable-stream').Readable;
 const intoStream = require('into-stream');
 const pipeToStorage = require('pipe-to-storage')(storage);
+const promiseRetry = require('promise-retry');
 
 /* custom Readable Stream closely follows example at https://nodejs.org/api/stream.html#stream_an_example_counting_stream */
 
