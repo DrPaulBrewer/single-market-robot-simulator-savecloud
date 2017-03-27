@@ -42,15 +42,19 @@ module.exports = function savecloud(sim){
     const bucket = sim.config.gcloud.bucket;
     const dir = (sim.config.gcloud.dir || '')+'/';
     function promiseToSaveLog(logname){
-	return pipeToStorage(new LogStream(sim.logs[logname]),
-			     bucket,
-			     dir+logname+'.csv');
+	return promiseRetry(function(retry){
+	    return pipeToStorage(new LogStream(sim.logs[logname]),
+				 bucket,
+				 dir+logname+'.csv').catch(retry);
+	});
     }
     function promiseToSaveSimConfig(){
 	if (sim.config.gcloud) delete sim.config.gcloud;
-	return pipeToStorage(intoStream(JSON.stringify(sim.config)),
-			     bucket,
-			     dir+'sim.json');
+	return promiseRetry(function(retry){
+	    return pipeToStorage(intoStream(JSON.stringify(sim.config)),
+				 bucket,
+				 dir+'sim.json').catch(retry);
+	});
     }
     if (typeof(sim)!=='object')
 	throw new Error("missing simulation parameter to savecloud");
