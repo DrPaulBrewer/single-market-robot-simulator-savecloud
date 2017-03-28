@@ -44,7 +44,6 @@ module.exports = function savecloud(sim){
 	return pipeToStorage(()=>{new LogStream(sim.logs[logname]);},
 			     bucket,
 			     dir+logname+'.csv');
-	});
     }
     function promiseToSaveSimConfig(){
 	if (sim.config.gcloud) delete sim.config.gcloud;
