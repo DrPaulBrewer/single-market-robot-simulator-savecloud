@@ -11,8 +11,7 @@
   "dependencies": {
     "@google-cloud/storage": "^0.8.0",
     "into-stream": "^3.1.0",
-    "pipe-to-storage": "^0.3.0",
-    "promise-retry": "^1.1.1",
+    "pipe-to-storage": "^0.4.0",
     "readable-stream": "^2.2.6"
   }
 }

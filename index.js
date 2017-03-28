@@ -10,7 +10,6 @@ const storage = require('@google-cloud/storage')();  // without an API key, this
 const Readable = require('readable-stream').Readable;
 const intoStream = require('into-stream');
 const pipeToStorage = require('pipe-to-storage')(storage);
-const promiseRetry = require('promise-retry');
 
 /* custom Readable Stream closely follows example at https://nodejs.org/api/stream.html#stream_an_example_counting_stream */
 
@@ -43,19 +42,17 @@ module.exports = function savecloud(sim){
     const bucket = sim.config.gcloud.bucket;
     const dir = (sim.config.gcloud.dir || '')+'/';
     function promiseToSaveLog(logname){
-	return promiseRetry(function(retry){
-	    return pipeToStorage(new LogStream(sim.logs[logname]),
-				 bucket,
-				 dir+logname+'.csv').catch(retry);
+	return pipeToStorage(()=>{new LogStream(sim.logs[logname]);},
+			     bucket,
+			     dir+logname+'.csv');
 	});
     }
     function promiseToSaveSimConfig(){
 	if (sim.config.gcloud) delete sim.config.gcloud;
-	return promiseRetry(function(retry){
-	    return pipeToStorage(intoStream(JSON.stringify(sim.config)),
-				 bucket,
-				 dir+'sim.json').catch(retry);
-	});
+	return pipeToStorage(JSON.stringify(sim.config),
+			     bucket,
+			     dir+'sim.json',
+			     'json');
     }
     if (typeof(sim)!=='object')
 	throw new Error("missing simulation parameter to savecloud");
