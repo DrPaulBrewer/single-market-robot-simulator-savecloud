@@ -41,7 +41,7 @@ module.exports = function savecloud(sim){
     const bucket = sim.config.gcloud.bucket;
     const dir = (sim.config.gcloud.dir || '')+'/';
     function promiseToSaveLog(logname){
-	return pipeToStorage(()=>{new LogStream(sim.logs[logname]);},
+	return pipeToStorage(()=>(new LogStream(sim.logs[logname])),
 			     bucket,
 			     dir+logname+'.csv');
     }
