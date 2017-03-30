@@ -2,7 +2,17 @@
 
 Helper to save single-market-robot-simulator simulation logs to a google cloud storage bucket
 
-Exports a single function, `savecloud(sim)`, returning a Promise that resolves when everything is saved
+## Initialization
+
+    const storage = require('@google-cloud/storage', {optional api key});
+
+**Pass storage object to initialize savecloud**
+
+    const saveCloud = require('single-market-robot-simulator-savecloud')(storage);
+
+## Usage
+
+`savecloud(sim)` returns a Promise that resolves when everything is saved
 
 `sim.config.gcloud.bucket` should contain a google cloud storage bucket name
 
