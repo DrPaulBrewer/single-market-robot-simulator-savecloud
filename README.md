@@ -28,6 +28,12 @@ The `sim.config.gcloud` properties are deleted before storing the JSON-stringifi
 
 `saveCloud` uses `npm:pipe-to-storage`  to retry, at least 3 times, writing to cloud storage.
 
+## Tests
+
+This module is tested automatically on Travis-CI.  
+
+Tests require modification to run locally. To test locally, replace the API key and bucket name with your own key/bucket.
+
 ## Copyright
 
 Copyright 2017 Paul Brewer, Economic and Financial Technology Consulting LLC <drpaulbrewer@eaftc.com>
