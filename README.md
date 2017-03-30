@@ -39,5 +39,3 @@ The MIT License
 ### Trademarks
 
 Google Cloud Storage [tm] is a trademark of Google, Inc.
-
-Note: There is no special relationship between the company/author of this software and Google, Inc. 
