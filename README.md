@@ -1,6 +1,8 @@
 # single-market-robot-simulator-savecloud
 
-Helper to save single-market-robot-simulator simulation logs to a google cloud storage bucket
+[![Build Status](https://travis-ci.org/DrPaulBrewer/single-market-robot-simulator-savecloud.svg?branch=master)](https://travis-ci.org/DrPaulBrewer/single-market-robot-simulator-savecloud)
+
+Helper to save single-market-robot-simulator simulation logs to a Google Cloud Storage [tm] bucket
 
 ## Initialization
 
@@ -14,10 +16,28 @@ Helper to save single-market-robot-simulator simulation logs to a google cloud s
 
 `savecloud(sim)` returns a Promise that resolves when everything is saved
 
-`sim.config.gcloud.bucket` should contain a google cloud storage bucket name
+Before passing `sim` to `saveCloud` you must set these properties:
 
-`sim.config.gcloud.dir` should contain a "directory" where all log.csv files and the sim.json file will be stored in the bucket
+* `sim.config.gcloud.bucket` should contain a google cloud storage bucket name
 
-The `sim.config.gcloud` properties are deleted before storing `sim.config` in sim.json
+* `sim.config.gcloud.dir` should contain a "directory" where all log.csv files and the sim.json file will be stored in the bucket
 
+The `sim.config.gcloud` properties are deleted before storing the JSON-stringified `sim.config` in sim.json
 
+### saveCloud handles retries for you
+
+`saveCloud` uses `npm:pipe-to-storage`  to retry, at least 3 times, writing to cloud storage.
+
+## Copyright
+
+Copyright 2017 Paul Brewer, Economic and Financial Technology Consulting LLC <drpaulbrewer@eaftc.com>
+
+## License
+
+The MIT License
+
+### Trademarks
+
+Google Cloud Storage [tm] is a trademark of Google, Inc.
+
+Note: There is no special relationship between the company/author of this software and Google, Inc. 
