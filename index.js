@@ -5,10 +5,8 @@
 
 "use strict";
 
-const storage = require('@google-cloud/storage')();  // without an API key, this only works in google cloud
-
 const Readable = require('readable-stream').Readable;
-const pipeToStorage = require('pipe-to-storage')(storage);
+const pipeToStorageFactory = require('pipe-to-storage');
 
 /* custom Readable Stream closely follows example at https://nodejs.org/api/stream.html#stream_an_example_counting_stream */
 
@@ -36,30 +34,32 @@ class LogStream extends Readable {
     }
 }
 
-module.exports = function savecloud(sim){
-    const logNames = Object.keys(sim.logs);
-    const bucket = sim.config.gcloud.bucket;
-    const dir = (sim.config.gcloud.dir || '')+'/';
-    function promiseToSaveLog(logname){
-	return pipeToStorage(()=>(new LogStream(sim.logs[logname])),
-			     bucket,
-			     dir+logname+'.csv');
-    }
-    function promiseToSaveSimConfig(){
-	if (sim.config.gcloud) delete sim.config.gcloud;
-	return pipeToStorage(JSON.stringify(sim.config),
-			     bucket,
-			     dir+'sim.json',
-			     'json');
-    }
-    if (typeof(sim)!=='object')
-	throw new Error("missing simulation parameter to savecloud");
-    if (typeof(bucket)!=='string')
-	throw new Error("missing bucket parameter to savecloud");
-    return (Promise
-	    .all(logNames.map(promiseToSaveLog))
-	    .then(promiseToSaveSimConfig)
-	    .catch(function(e){ console.log("in savecloud, Error: "+e.toString()) })
-		);
+module.exports = function savecloud(storage){
+    const pipeToStorage = pipeToStorageFactory(storage);
+    return function(sim){
+	const logNames = Object.keys(sim.logs);
+	const bucket = sim.config.gcloud.bucket;
+	const dir = (sim.config.gcloud.dir || '')+'/';
+	function promiseToSaveLog(logname){
+	    return pipeToStorage(()=>(new LogStream(sim.logs[logname])),
+				 bucket,
+				 dir+logname+'.csv');
+	}
+	function promiseToSaveSimConfig(){
+	    if (sim.config.gcloud) delete sim.config.gcloud;
+	    return pipeToStorage(JSON.stringify(sim.config),
+				 bucket,
+				 dir+'sim.json',
+				 'json');
+	}
+	if (typeof(sim)!=='object')
+	    throw new Error("missing simulation parameter to savecloud");
+	if (typeof(bucket)!=='string')
+	    throw new Error("missing bucket parameter to savecloud");
+	return (Promise
+		.all(logNames.map(promiseToSaveLog))
+		.then(promiseToSaveSimConfig)
+	       );
+    };
 };
 
