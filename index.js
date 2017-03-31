@@ -36,21 +36,29 @@ class LogStream extends Readable {
 
 module.exports = function savecloud(storage){
     const pipeToStorage = pipeToStorageFactory(storage);
+    const md5s = {};
     return function(sim){
 	const logNames = Object.keys(sim.logs);
 	const bucket = sim.config.gcloud.bucket;
 	const dir = (sim.config.gcloud.dir || '')+'/';
+	function addMD5(info){
+	    md5s[info.file] = info.md5;
+	}
 	function promiseToSaveLog(logname){
 	    return pipeToStorage(()=>(new LogStream(sim.logs[logname])),
 				 bucket,
-				 dir+logname+'.csv');
+				 dir+logname+'.csv').then(addMD5);
 	}
 	function promiseToSaveSimConfig(){
 	    if (sim.config.gcloud) delete sim.config.gcloud;
 	    return pipeToStorage(JSON.stringify(sim.config),
 				 bucket,
-				 dir+'sim.json',
-				 'json');
+				 dir+'sim.json').then(addMD5);
+	}
+	function promiseToSaveMD5(){
+	    return pipeToStorage(JSON.stringify(md5s),
+				 bucket,
+				 dir+'md5.json');
 	}
 	if (typeof(sim)!=='object')
 	    throw new Error("missing simulation parameter to savecloud");
@@ -59,6 +67,7 @@ module.exports = function savecloud(storage){
 	return (Promise
 		.all(logNames.map(promiseToSaveLog))
 		.then(promiseToSaveSimConfig)
+		.then(promiseToSaveMD5)
 	       );
     };
 };
