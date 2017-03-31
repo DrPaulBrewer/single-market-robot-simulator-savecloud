@@ -36,11 +36,11 @@ class LogStream extends Readable {
 
 module.exports = function savecloud(storage){
     const pipeToStorage = pipeToStorageFactory(storage);
-    const md5s = {};
     return function(sim){
 	const logNames = Object.keys(sim.logs);
 	const bucket = sim.config.gcloud.bucket;
 	const dir = (sim.config.gcloud.dir || '')+'/';
+	const md5s = {};
 	function addMD5(info){
 	    md5s[info.file] = info.md5;
 	}
