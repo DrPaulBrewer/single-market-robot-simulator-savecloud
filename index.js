@@ -51,12 +51,12 @@ module.exports = function savecloud(storage){
 	}
 	function promiseToSaveSimConfig(){
 	    if (sim.config.gcloud) delete sim.config.gcloud;
-	    return pipeToStorage(JSON.stringify(sim.config),
+	    return pipeToStorage(JSON.stringify(sim.config,null,2),
 				 bucket,
 				 dir+'sim.json').then(addMD5);
 	}
 	function promiseToSaveMD5(){
-	    return pipeToStorage(JSON.stringify(md5s),
+	    return pipeToStorage(JSON.stringify(md5s,null,2),
 				 bucket,
 				 dir+'md5.json');
 	}
