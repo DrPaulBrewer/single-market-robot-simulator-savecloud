@@ -119,7 +119,12 @@ function writeTest(n){
 			   );
 	    let goodLines = 0;
 	    reader.on('end', function(){
-		// test passes if we read all the lines
+		if ( (/volume.csv$/.test(file)) || (/effalloc.csv$/.test(file)) || (/ohlc.csv$/.test(file)) ){
+		    // require these files to have one line per period
+		    if (goodLines !== (1+sim.config.periods))
+			throw new Error("expected to read "+(1+sim.config.periods)+" lines got "+goodLines);
+		}
+		// test passes if we read all the lines correctly
 		if (goodLines === logdata.length)
 		    resolve();
 		else
