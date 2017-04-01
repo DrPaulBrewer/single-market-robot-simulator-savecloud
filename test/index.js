@@ -89,6 +89,14 @@ function configWithPeriods(simConfig,n){
 
 function writeTest(n){
     let sim, fileList, dir, numberOfFiles;
+    let lineTests = 0;
+    const expectedLines = {
+	profit: n,
+	effalloc: n+1,
+	ohlc: n+1,
+	volume: n+1
+    };
+    const expectedLineTests = Object.keys(expectedLines).length;
     function existenceTest(toBe){
 	if (!(numberOfFiles>0))
 	    throw new Error("expected numberOfFiles>0 but got: "+numberOfFiles);
@@ -119,14 +127,15 @@ function writeTest(n){
 			   );
 	    let goodLines = 0;
 	    reader.on('end', function(){
-		if ( (/volume.csv$/.test(file)) || (/effalloc.csv$/.test(file)) || (/ohlc.csv$/.test(file)) ){
-		    // require these files to have one line per period
-		    if (goodLines !== (1+sim.config.periods))
-			throw new Error("expected to read "+(1+sim.config.periods)+" lines got "+goodLines);
+		if (expectedLines[logname]){
+		    lineTests++; // count the number of tests
+		    // require the files to have the indicated number of lines
+		    if (goodLines !== expectedLines[logname])
+			throw new Error("expected to read "+expectedLines[logname]+" lines got "+goodLines);
 		}
 		// test passes if we read all the lines correctly
 		if (goodLines === logdata.length)
-		    resolve();
+		    resolve(true);
 		else
 		    reject(new Error('exoected all lines to be good at end of file. Verified  '+goodLines+' lines bue expected '+logdata.length));
 	    });
@@ -153,6 +162,9 @@ function writeTest(n){
 	    dir = sim.config.gcloud.dir;
 	    numberOfFiles = fileList.length;
 	});
+	it('none of the files should exist in the bucket', function(){
+	    existenceTest(false);
+	});
 	it("should write finished "+n+" period simulation to Google Cloud Storage bucket without error", function(){
 	    return saveCloud(sim);
 	});
@@ -164,6 +176,9 @@ function writeTest(n){
 			       .filter((f)=>(/csv$/.test(f)))
 			       .map(testAgainstLog)
 			      );
+	});
+	it('should have tested '+expectedLineTests+' files/logs '+Object.keys(expectedLines).join(' ')+' for the number of lines/rows', function(){
+	    assert.equal(lineTests, expectedLineTests);
 	});
 	it('delete all log files and sim.json from the bucket without error', function(){
 	    return Promise.all(fileList.map((f)=>{
