@@ -4,7 +4,7 @@
   "description": "save single-market-robot-simulator single simulation in google cloud bucket",
   "main": "index.js",
   "scripts": {
-    "test": "node_modules/.bin/mocha --reporter spec --slow 5000 --timeout 120000"
+    "test": "node_modules/.bin/mocha --reporter spec --slow 5000 --timeout 30000"
   },
   "repository": {
     "type": "git",
@@ -25,6 +25,7 @@
     "clone": "^2.1.1",
     "mocha": "^3.2.0",
     "should": "^11.2.1",
-    "single-market-robot-simulator": "^0.62.0"
+    "single-market-robot-simulator": "^0.62.0",
+    "verify-bucket-md5": "^0.2.0"
   }
 }

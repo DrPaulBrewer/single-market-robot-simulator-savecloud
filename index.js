@@ -39,10 +39,12 @@ module.exports = function savecloud(storage){
     return function(sim){
 	const logNames = Object.keys(sim.logs);
 	const bucket = sim.config.gcloud.bucket;
-	const dir = (sim.config.gcloud.dir || '')+'/';
+	let dir = sim.config.gcloud.dir;
+	if ( (dir !== '') && (dir[dir.length-1]!=='/') ) dir = dir+'/';
 	const md5s = {};
 	function addMD5(info){
-	    md5s[info.file] = info.md5;
+	    const fname = info.file.replace(dir,'');
+	    md5s[fname] = info.md5;
 	}
 	function promiseToSaveLog(logname){
 	    return pipeToStorage(()=>(new LogStream(sim.logs[logname])),

@@ -12,6 +12,7 @@ const storage = require('@google-cloud/storage')({
 
 const readline = require('readline');
 
+const verifyBucketMD5 = require('verify-bucket-md5')(storage);
 const saveCloud = require("../index.js")(storage);
 
 const bucket = 'eaftc-travis-testing';
@@ -87,7 +88,7 @@ function configWithPeriods(simConfig,n){
 }
 
 
-function writeTest(n){
+function writeTest(n, chaos){
     let sim, fileList, dir, numberOfFiles;
     let lineTests = 0;
     const expectedLines = {
@@ -113,7 +114,7 @@ function writeTest(n){
 		   );
 	}));
 	if (todolist.length !== numberOfFiles)
-	    throw new Error("expected promsie list to be length "+numberOfFiles+" got: "+todolist.length);
+	    throw new Error("expected promise list to be length "+numberOfFiles+" got: "+todolist.length);
 	return Promise.all(todolist);
     }
     function testAgainstLog(file){
@@ -126,6 +127,7 @@ function writeTest(n){
 			    .createReadStream()
 			   );
 	    let goodLines = 0;
+	    reader.on('error', function(e){ reject(e); });
 	    reader.on('end', function(){
 		if (expectedLines[logname]){
 		    lineTests++; // count the number of tests
@@ -161,25 +163,57 @@ function writeTest(n){
 	    fileList.push('sim.json');
 	    dir = sim.config.gcloud.dir;
 	    numberOfFiles = fileList.length;
+	    if (!(numberOfFiles>0)) throw new Error("expected number of files > 0, got: "+numberOfFiles);
 	});
 	it('none of the files should exist in the bucket', function(){
-	    existenceTest(false);
+	    return existenceTest(false);
 	});
 	it("should write finished "+n+" period simulation to Google Cloud Storage bucket without error", function(){
 	    return saveCloud(sim);
 	});
 	it('all log files and sim.json file exist in the bucket', function(){
-	    existenceTest(true);
+	    return existenceTest(true);
 	});
-	it('read all log fles in the bucket and confirm contents against simulation logs', function(){
-	    return Promise.all(fileList
-			       .filter((f)=>(/csv$/.test(f)))
-			       .map(testAgainstLog)
-			      );
+	it('should pass the verify-bucket-md5 test comparing the buckets md5.json file and saved file metadata', function(){
+	    return verifyBucketMD5(bucket,dir+"/md5.json").then(function(status){
+		if (!status[0]) throw new Error("failed verify-bucket-md5 testing, result:  "+JSON.stringify(status));
+		if (status[1].length !== numberOfFiles) throw new Error("expected to test "+numberOfFiles+" files but only tested "+status[1].length+" files as good");
+	    });
 	});
-	it('should have tested '+expectedLineTests+' files/logs '+Object.keys(expectedLines).join(' ')+' for the number of lines/rows', function(){
-	    assert.equal(lineTests, expectedLineTests);
-	});
+	if (chaos){
+	    it('chaos! delete trade.csv from the bucket', function(){
+		return storage.bucket(bucket).file(dir+'/'+'trade.csv').delete();
+	    });
+	    it('should fail the verify-bucket-md5 test comparing the buckets md5.json file and saved file metadata', function(){
+		return verifyBucketMD5(bucket,dir+"/md5.json").then(function(status){
+		    if (status[0]) throw new Error("expected failure of verify-bucket-md5 testing, got success, result:  "+JSON.stringify(status));
+		    if (status[1].length === numberOfFiles) throw new Error("expected to test less than "+numberOfFiles+" good files but got "+status[1].length+" files as good");
+		    if (status[2][0]!=="trade.csv") throw new Error("expected the bad file to be trade.csv but got "+status[2][0]);
+		});
+	    });
+	    it('should fail reading all log fles in the bucket and confirming contents against simulation logs', function(done){
+		// do not return a Promise here because we are using done
+		Promise.all(fileList
+			    .filter((f)=>(/csv$/.test(f)))
+			    .map(testAgainstLog)
+			   ).then(function(){ done(new Error("fail")); }, function(){ done(); });
+	    });
+	    it('chaos! test will shorten fileList so deletion can proceed normally', function(){
+		fileList = fileList.filter((f)=>(!(/trade.csv$/.test(f))));
+		assert.equal(fileList.length, numberOfFiles-1);
+		numberOfFiles--;
+	    });
+	} else {
+	    it('read all log fles in the bucket and confirm contents against simulation logs', function(){
+		return Promise.all(fileList
+				   .filter((f)=>(/csv$/.test(f)))
+				   .map(testAgainstLog)
+				  );
+	    });	    
+	    it('should have tested '+expectedLineTests+' files/logs '+Object.keys(expectedLines).join(' ')+' for the number of lines/rows', function(){
+		assert.equal(lineTests, expectedLineTests);
+	    });
+	}
 	it('delete all log files and sim.json from the bucket without error', function(){
 	    return Promise.all(fileList.map((f)=>{
 		return (storage
@@ -190,7 +224,7 @@ function writeTest(n){
 	    }));
 	});
 	it('none of the files should exist in the bucket', function(){
-	    existenceTest(false);
+	    return existenceTest(false);
 	});
     });
 }
@@ -198,6 +232,7 @@ function writeTest(n){
 describe("single-market-robot-simulator-saveCloud:", function(){
     writeTest(1);
     writeTest(10);
+    writeTest(10,true); // add chaos
     writeTest(100);
     writeTest(500);
 });
