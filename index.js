@@ -8,31 +8,8 @@
 const Readable = require('readable-stream').Readable;
 const pipeToStorageFactory = require('pipe-to-storage');
 
+
 /* custom Readable Stream closely follows example at https://nodejs.org/api/stream.html#stream_an_example_counting_stream */
-
-class LogStream extends Readable {
-    constructor(simlog, opt) {
-	super(opt);
-	this._log = simlog;
-	this._max = simlog.data.length;
-	this._index = 0;
-    }
-
-    _read() {
-	let str, i, hungry;
-	const logRow = this._log.data;
-	do {
-	    i = this._index++;
-	    str = (i>=this._max)? null: (logRow[i].join(",")+"\n");
-	    if (str===null)
-		hungry = this.push(null);
-	    else if ((typeof str==='string') && (str.length>0))
-		hungry = this.push(str, 'utf8');
-	    else
-		throw new Error("LogStream._read() expected string, got: "+typeof(str)+" i is "+i+" len is "+this._max);
-	} while ((i<this._max) && hungry);
-    }
-}
 
 module.exports = function savecloud(storage){
     const pipeToStorage = pipeToStorageFactory(storage);
@@ -47,7 +24,7 @@ module.exports = function savecloud(storage){
 	    md5s[fname] = info.md5;
 	}
 	function promiseToSaveLog(logname){
-	    return pipeToStorage(()=>(new LogStream(sim.logs[logname])),
+	    return pipeToStorage(()=>(sim.logs[logname].createReadStream(Readable)),
 				 bucket,
 				 dir+logname+'.csv').then(addMD5);
 	}
