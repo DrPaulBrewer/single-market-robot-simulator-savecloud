@@ -13,7 +13,7 @@ const pipeToStorageFactory = require('pipe-to-storage');
 
 module.exports = function savecloud(storage){
     const pipeToStorage = pipeToStorageFactory(storage);
-    return function(sim){
+    return function(sim, startTime){
 	const logNames = Object.keys(sim.logs);
 	const bucket = sim.config.gcloud.bucket;
 	let dir = sim.config.gcloud.dir;
@@ -34,6 +34,19 @@ module.exports = function savecloud(storage){
 				 bucket,
 				 dir+'sim.json').then(addMD5);
 	}
+	function promiseToSaveUsage(){
+	    if (startTime){
+		const endTime = Date.now();
+		const elapsedTime =  endTime-startTime;
+		const periods = sim.config.periods;
+		const periodsRequested = sim.config.periodsRequested || sim.config.periods;
+		const s = JSON.stringify({ startTime, endTime, elapsedTime, periods, periodsRequested, dir },null,2);
+		return pipeToStorage(s,
+				     bucket,
+				     dir+'usage.json').then(addMD5);
+	    }
+	    return Promise.resolve();
+	}
 	function promiseToSaveMD5(){
 	    return pipeToStorage(JSON.stringify(md5s,null,2),
 				 bucket,
@@ -46,6 +59,7 @@ module.exports = function savecloud(storage){
 	return (Promise
 		.all(logNames.map(promiseToSaveLog))
 		.then(promiseToSaveSimConfig)
+		.then(promiseToSaveUsage)
 		.then(promiseToSaveMD5)
 	       );
     };
