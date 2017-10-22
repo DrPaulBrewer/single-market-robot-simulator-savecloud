@@ -92,10 +92,9 @@ function writeTest(n, chaos){
     let sim, fileList, dir, numberOfFiles;
     let lineTests = 0;
     const expectedLines = {
-	profit: n,
+	profit: n+1,
 	effalloc: n+1,
-	ohlc: n+1,
-	volume: n+1
+	ohlc: n+1
     };
     const expectedLineTests = Object.keys(expectedLines).length;
     function existenceTest(toBe){
