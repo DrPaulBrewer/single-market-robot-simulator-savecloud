@@ -36,6 +36,12 @@ This module is tested automatically on Travis-CI.
 
 Tests require modification to run locally. To test locally, replace the API key and bucket name with your own key/bucket.
 
+### Test Compatibility
+
+Tests in version 1.1 are compatible with single-market-robot-simulator version 1.0
+
+Tests in version 2.0 are compatible with single-market-robot-simulator version 4.0
+
 ## Copyright
 
 Copyright 2017 Paul Brewer, Economic and Financial Technology Consulting LLC <drpaulbrewer@eaftc.com>
