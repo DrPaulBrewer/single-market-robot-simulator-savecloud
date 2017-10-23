@@ -1,5 +1,7 @@
 # single-market-robot-simulator-savecloud
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/DrPaulBrewer/single-market-robot-simulator-savecloud.svg)](https://greenkeeper.io/)
+
 [![Build Status](https://travis-ci.org/DrPaulBrewer/single-market-robot-simulator-savecloud.svg?branch=master)](https://travis-ci.org/DrPaulBrewer/single-market-robot-simulator-savecloud)
 
 Helper to save single-market-robot-simulator simulation logs to a Google Cloud Storage [tm] bucket
