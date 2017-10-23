@@ -1,6 +1,6 @@
 {
   "name": "single-market-robot-simulator-savecloud",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "save single-market-robot-simulator single simulation in google cloud bucket",
   "main": "index.js",
   "scripts": {
