@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/DrPaulBrewer/single-market-robot-simulator-savecloud#readme",
   "dependencies": {
-    "pipe-to-storage": "^0.8.0",
+    "pipe-to-storage": "^0.9.3",
     "readable-stream": "^2.2.6"
   },
   "devDependencies": {
