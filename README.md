@@ -1,6 +1,6 @@
 # single-market-robot-simulator-savecloud
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/DrPaulBrewer/single-market-robot-simulator-savecloud.svg)](https://greenkeeper.io/)
+
 
 [![Build Status](https://travis-ci.org/DrPaulBrewer/single-market-robot-simulator-savecloud.svg?branch=master)](https://travis-ci.org/DrPaulBrewer/single-market-robot-simulator-savecloud)
 
